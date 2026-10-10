@@ -52,3 +52,17 @@ prompt
 server.log
 # Skills directory
 /skills/
+
+# 数据库文件（部署时会重新生成，不传上去）
+/db/*.db
+/db/*.db-journal
+/db/*.db-*
+
+# 运行时上传的图片（用户提交的截图，不传上去，部署后重新产生）
+/public/uploads/*
+# 但保留种子图片（项目自带的演示图）
+!/public/uploads/seed-*.png
+
+# 验证截图（开发时 Agent Browser 生成的）
+/verify-*.png
+/upload/
