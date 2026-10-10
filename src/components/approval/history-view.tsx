@@ -12,8 +12,9 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { Gift, CheckCircle2, XCircle, Inbox, MessageSquareText } from "lucide-react";
+import { Gift, CheckCircle2, XCircle, Inbox, MessageSquareText, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ImageViewer } from "./image-viewer";
 
 type Filter = "all" | ApprovalStatus;
 
@@ -33,6 +34,7 @@ export function HistoryView({ approvals, loading }: Props) {
   const [filter, setFilter] = useState<Filter>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
+  const [imgViewer, setImgViewer] = useState(false);
 
   const stats = useMemo(() => {
     const approved = approvals.filter((a) => a.status === "approved");
@@ -185,13 +187,30 @@ export function HistoryView({ approvals, loading }: Props) {
           </DrawerHeader>
           {selected && (
             <div className="cute-scroll flex-1 overflow-y-auto px-4 pb-6">
-              <div className="overflow-hidden rounded-2xl border-2 border-white shadow-[0_4px_0_-1px_#ffe5d6]">
+              {/* 订单截图 —— 完整显示，点击可全屏预览 */}
+              <button
+                type="button"
+                onClick={() => setImgViewer(true)}
+                className="group relative block w-full overflow-hidden rounded-2xl border-2 border-white bg-[var(--cute-bg-2)] shadow-[0_4px_0_-1px_#ffe5d6] transition active:scale-[0.99]"
+                aria-label="点击查看完整截图"
+              >
                 <img
                   src={selected.orderImage}
                   alt={selected.item}
-                  className="max-h-64 w-full object-cover"
+                  className="max-h-[420px] w-full object-contain"
                 />
-              </div>
+                <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white opacity-90 backdrop-blur transition group-hover:opacity-100">
+                  <ZoomIn className="h-3 w-3" />
+                  点击放大
+                </span>
+              </button>
+
+              <ImageViewer
+                src={selected.orderImage}
+                alt={selected.item}
+                open={imgViewer}
+                onOpenChange={setImgViewer}
+              />
 
               <div className="mt-3 flex items-center gap-2">
                 {selected.applicantAvatar && (

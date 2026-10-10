@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import type { ApprovalRequest } from "@/lib/approvals";
 import { formatMoney, relativeTime } from "@/lib/approvals";
 import { StatusBadge } from "./status-badge";
-import { Gift, Check, X, Loader2, MessageSquareText } from "lucide-react";
+import { ImageViewer } from "./image-viewer";
+import { Gift, Check, X, Loader2, MessageSquareText, ZoomIn } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PRESETS = [0, 10, 20, 50, 100];
@@ -47,6 +48,7 @@ export function DetailSheet({
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [action, setAction] = useState<"approved" | "rejected" | null>(null);
+  const [imgViewer, setImgViewer] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -107,14 +109,30 @@ export function DetailSheet({
         </DrawerHeader>
 
         <div className="cute-scroll flex-1 overflow-y-auto px-4 pb-2">
-          {/* 订单截图 */}
-          <div className="overflow-hidden rounded-2xl border-2 border-white shadow-[0_4px_0_-1px_#ffe5d6]">
+          {/* 订单截图 —— 完整显示，点击可全屏预览 */}
+          <button
+            type="button"
+            onClick={() => setImgViewer(true)}
+            className="group relative block w-full overflow-hidden rounded-2xl border-2 border-white bg-[var(--cute-bg-2)] shadow-[0_4px_0_-1px_#ffe5d6] transition active:scale-[0.99]"
+            aria-label="点击查看完整截图"
+          >
             <img
               src={approval.orderImage}
               alt={approval.item}
-              className="max-h-64 w-full object-cover"
+              className="max-h-[420px] w-full object-contain"
             />
-          </div>
+            <span className="pointer-events-none absolute bottom-2 right-2 inline-flex items-center gap-1 rounded-full bg-black/55 px-2 py-0.5 text-[10px] font-medium text-white opacity-90 backdrop-blur transition group-hover:opacity-100">
+              <ZoomIn className="h-3 w-3" />
+              点击放大
+            </span>
+          </button>
+
+          <ImageViewer
+            src={approval.orderImage}
+            alt={approval.item}
+            open={imgViewer}
+            onOpenChange={setImgViewer}
+          />
 
           {/* 申请人信息 */}
           <div className="mt-3 flex items-center gap-2">
