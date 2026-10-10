@@ -2,22 +2,25 @@ import type { ApprovalStatus } from "@/lib/approvals";
 
 const MAP: Record<
   ApprovalStatus,
-  { label: string; cls: string; dot: string }
+  { label: string; emoji: string; cls: string; dot: string }
 > = {
   pending: {
-    label: "待审批",
-    cls: "bg-amber-50 text-amber-600 border-amber-200",
-    dot: "bg-amber-500",
+    label: "等审批",
+    emoji: "⏳",
+    cls: "bg-[var(--cute-pending-soft)] text-[#d98c1f] border-[#ffd9a0]",
+    dot: "bg-[var(--cute-pending)]",
   },
   approved: {
-    label: "已通过",
-    cls: "bg-emerald-50 text-emerald-600 border-emerald-200",
-    dot: "bg-emerald-500",
+    label: "通过啦",
+    emoji: "✅",
+    cls: "bg-[var(--cute-mint-soft)] text-[#2f9e7e] border-[#aee6d6]",
+    dot: "bg-[var(--cute-mint-deep)]",
   },
   rejected: {
-    label: "已驳回",
-    cls: "bg-rose-50 text-rose-500 border-rose-200",
-    dot: "bg-rose-500",
+    label: "被退回",
+    emoji: "🙅",
+    cls: "bg-[var(--cute-reject-soft)] text-[#d96060] border-[#ffb0b0]",
+    dot: "bg-[var(--cute-reject)]",
   },
 };
 
@@ -31,11 +34,11 @@ export function StatusBadge({
   const m = MAP[status];
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full border font-medium ${m.cls} ${
-        size === "sm" ? "px-2 py-0.5 text-[11px]" : "px-2.5 py-1 text-xs"
+      className={`inline-flex items-center gap-1 rounded-full border font-semibold ${m.cls} ${
+        size === "sm" ? "px-2.5 py-0.5 text-[11px]" : "px-3 py-1 text-xs"
       }`}
     >
-      <span className={`h-1.5 w-1.5 rounded-full ${m.dot}`} />
+      <span>{m.emoji}</span>
       {m.label}
     </span>
   );

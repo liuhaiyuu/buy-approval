@@ -14,10 +14,17 @@ import { Input } from "@/components/ui/input";
 import type { ApprovalRequest } from "@/lib/approvals";
 import { formatMoney, relativeTime } from "@/lib/approvals";
 import { StatusBadge } from "./status-badge";
-import { Gift, Check, X, Loader2, ImageIcon } from "lucide-react";
+import { Gift, Check, X, Loader2, MessageSquareText } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const PRESETS = [0, 10, 20, 50, 100];
+const PRESET_EMOJI: Record<number, string> = {
+  0: "🙈",
+  10: "🍬",
+  20: "🧋",
+  50: "🍰",
+  100: "💐",
+};
 
 interface Props {
   open: boolean;
@@ -41,7 +48,6 @@ export function DetailSheet({
   const [submitting, setSubmitting] = useState(false);
   const [action, setAction] = useState<"approved" | "rejected" | null>(null);
 
-  // 每次打开新申请单时重置
   useEffect(() => {
     if (open) {
       setSponsor(0);
@@ -90,17 +96,19 @@ export function DetailSheet({
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[92vh] !rounded-t-2xl">
+      <DrawerContent className="max-h-[92vh] !rounded-t-3xl border-2 border-b-0 border-white">
         <DrawerHeader className="pb-2 text-center">
-          <DrawerTitle className="text-base">审批详情</DrawerTitle>
+          <DrawerTitle className="text-base font-bold text-[var(--cute-ink)]">
+            📋 审批详情
+          </DrawerTitle>
           <DrawerDescription className="sr-only">
             查看申请并审批
           </DrawerDescription>
         </DrawerHeader>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-2">
+        <div className="cute-scroll flex-1 overflow-y-auto px-4 pb-2">
           {/* 订单截图 */}
-          <div className="overflow-hidden rounded-xl ring-1 ring-black/5">
+          <div className="overflow-hidden rounded-2xl border-2 border-white shadow-[0_4px_0_-1px_#ffe5d6]">
             <img
               src={approval.orderImage}
               alt={approval.item}
@@ -114,14 +122,14 @@ export function DetailSheet({
               <img
                 src={approval.applicantAvatar}
                 alt={approval.applicant}
-                className="h-6 w-6 rounded-full"
+                className="h-7 w-7 rounded-full border-2 border-white shadow-sm"
               />
             )}
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-sm font-bold text-[var(--cute-ink)]">
               {approval.applicant}
             </span>
-            <span className="text-[11px] text-muted-foreground">
-              · {relativeTime(approval.createdAt)}申请
+            <span className="text-[11px] text-[var(--cute-ink-soft)]">
+              · {relativeTime(approval.createdAt)}求批
             </span>
             <span className="ml-auto">
               <StatusBadge status={approval.status} />
@@ -129,14 +137,18 @@ export function DetailSheet({
           </div>
 
           {/* 商品 + 金额 */}
-          <div className="mt-3 rounded-xl bg-muted/60 p-3">
-            <div className="text-[11px] text-muted-foreground">购买商品</div>
-            <div className="mt-0.5 text-sm font-medium text-foreground">
+          <div className="mt-3 rounded-2xl border-2 border-white bg-[var(--cute-bg)] p-3 shadow-[0_3px_0_-1px_#ffe5d6]">
+            <div className="text-[11px] font-medium text-[var(--cute-ink-soft)]">
+              🛍️ 想买啥
+            </div>
+            <div className="mt-0.5 text-sm font-bold text-[var(--cute-ink)]">
               {approval.item}
             </div>
             <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-xs text-muted-foreground">订单金额</span>
-              <span className="ml-auto text-xl font-semibold text-[#07C160]">
+              <span className="text-xs text-[var(--cute-ink-soft)]">
+                订单金额
+              </span>
+              <span className="ml-auto text-xl font-black text-[var(--cute-pink-deep)]">
                 ¥{formatMoney(approval.amount)}
               </span>
             </div>
@@ -144,25 +156,26 @@ export function DetailSheet({
 
           {/* 购买原因 */}
           <div className="mt-3">
-            <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground">
-              <ImageIcon className="h-3 w-3" />
-              购买原因
+            <div className="flex items-center gap-1.5 text-[11px] font-bold text-[var(--cute-ink-soft)]">
+              <MessageSquareText className="h-3.5 w-3.5" />
+              购买理由
             </div>
-            <div className="mt-1.5 rounded-xl border border-border bg-white p-3 text-[13px] leading-relaxed text-foreground">
+            <div className="mt-1.5 rounded-2xl border-2 border-[#ffe5d6] bg-white p-3 text-[13px] leading-relaxed text-[var(--cute-ink)]">
               {approval.reason}
             </div>
           </div>
 
-          {/* 打赏赞助 */}
-          <div className="mt-4 rounded-xl border border-dashed border-rose-200 bg-rose-50/40 p-3">
-            <div className="flex items-center gap-1.5 text-[13px] font-medium text-rose-500">
+          {/* 打赏赞助 —— 可爱核心 */}
+          <div className="mt-4 rounded-2xl border-2 border-dashed border-[#ffc4d4] bg-[var(--cute-pink-soft)]/40 p-3">
+            <div className="flex items-center gap-1.5 text-[13px] font-bold text-[var(--cute-pink-deep)]">
               <Gift className="h-4 w-4" />
-              打赏赞助金额（可选）
+              打赏赞助金额
             </div>
-            <div className="mt-1 text-[11px] text-muted-foreground">
-              审批通过后，由你赞助这笔钱给 {approval.applicant}，多少随心意～
+            <div className="mt-1 text-[11px] text-[var(--cute-ink-soft)]">
+              审批通过后，由你赞助这笔钱给 {approval.applicant}～多少随心意啦
+              💕
             </div>
-            <div className="mt-2.5 grid grid-cols-5 gap-2">
+            <div className="mt-2.5 grid grid-cols-3 gap-2">
               {PRESETS.map((v) => (
                 <button
                   key={v}
@@ -173,12 +186,15 @@ export function DetailSheet({
                     setSponsor(v);
                   }}
                   className={cn(
-                    "rounded-lg border py-1.5 text-xs font-medium transition",
+                    "flex flex-col items-center gap-0.5 rounded-2xl border-2 py-2 text-xs font-bold transition",
                     !customMode && sponsor === v
-                      ? "border-rose-400 bg-rose-500 text-white shadow-sm"
-                      : "border-border bg-white text-foreground hover:border-rose-300"
+                      ? "border-[var(--cute-pink-deep)] bg-gradient-to-br from-[var(--cute-pink)] to-[var(--cute-pink-deep)] text-white shadow-[0_3px_0_-1px_#ff5c86]"
+                      : "border-white bg-white text-[var(--cute-ink)] hover:border-[var(--cute-pink)]"
                   )}
                 >
+                  <span className="text-base leading-none">
+                    {PRESET_EMOJI[v]}
+                  </span>
                   {v === 0 ? "不打赏" : `¥${v}`}
                 </button>
               ))}
@@ -187,18 +203,21 @@ export function DetailSheet({
                 disabled={submitting}
                 onClick={() => setCustomMode(true)}
                 className={cn(
-                  "rounded-lg border py-1.5 text-xs font-medium transition",
+                  "flex flex-col items-center gap-0.5 rounded-2xl border-2 py-2 text-xs font-bold transition",
                   customMode
-                    ? "border-rose-400 bg-rose-500 text-white shadow-sm"
-                    : "border-border bg-white text-foreground hover:border-rose-300"
+                    ? "border-[var(--cute-pink-deep)] bg-gradient-to-br from-[var(--cute-pink)] to-[var(--cute-pink-deep)] text-white shadow-[0_3px_0_-1px_#ff5c86]"
+                    : "border-white bg-white text-[var(--cute-ink)] hover:border-[var(--cute-pink)]"
                 )}
               >
+                <span className="text-base leading-none">✨</span>
                 自定义
               </button>
             </div>
             {customMode && (
-              <div className="mt-2 flex items-center rounded-lg border border-rose-300 bg-white px-2">
-                <span className="text-sm text-rose-500">¥</span>
+              <div className="mt-2 flex items-center rounded-2xl border-2 border-[var(--cute-pink)] bg-white px-3">
+                <span className="text-sm font-bold text-[var(--cute-pink-deep)]">
+                  ¥
+                </span>
                 <Input
                   type="number"
                   min={0}
@@ -206,52 +225,52 @@ export function DetailSheet({
                   value={customVal}
                   disabled={submitting}
                   onChange={(e) => setCustomVal(e.target.value)}
-                  placeholder="输入赞助金额"
-                  className="h-9 border-0 bg-transparent shadow-none focus-visible:ring-0"
+                  placeholder="输入金额"
+                  className="h-10 border-0 bg-transparent shadow-none focus-visible:ring-0"
                 />
               </div>
             )}
-            <div className="mt-2 text-right text-sm font-semibold text-rose-500">
-              合计赞助 ¥{formatMoney(finalSponsor)}
+            <div className="mt-2 text-right text-sm font-black text-[var(--cute-pink-deep)]">
+              合计赞助 ¥{formatMoney(finalSponsor)} 💝
             </div>
           </div>
 
           {/* 审批意见 */}
           <div className="mt-3">
-            <div className="text-[11px] font-medium text-muted-foreground">
-              审批意见（可选）
+            <div className="text-[11px] font-bold text-[var(--cute-ink-soft)]">
+              💬 给申请人留句话（可选）
             </div>
             <Textarea
               value={note}
               disabled={submitting}
               onChange={(e) => setNote(e.target.value)}
-              placeholder="给申请人留句话…"
-              className="mt-1.5 min-h-[72px] resize-none text-[13px]"
+              placeholder="想对TA说点啥～"
+              className="mt-1.5 min-h-[72px] resize-none rounded-2xl border-2 border-[#ffe5d6] bg-[var(--cute-bg)] text-[13px] leading-relaxed text-[var(--cute-ink)] placeholder:text-[var(--cute-ink-soft)]/60 focus-visible:border-[var(--cute-pink)] focus-visible:ring-[var(--cute-pink-soft)]"
             />
           </div>
         </div>
 
         {/* 底部操作 */}
-        <div className="sticky bottom-0 mt-1 flex gap-2 border-t border-border bg-background p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+        <div className="sticky bottom-0 mt-1 flex gap-2 border-t-2 border-[#ffe5d6] bg-white p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
           <Button
             type="button"
             variant="outline"
             disabled={submitting}
             onClick={() => submit("rejected")}
-            className="flex-1 border-rose-300 text-rose-500 hover:bg-rose-50 hover:text-rose-600"
+            className="flex-1 rounded-2xl border-2 border-[var(--cute-reject)] bg-[var(--cute-reject-soft)] text-[var(--cute-reject)] hover:bg-[var(--cute-reject)] hover:text-white"
           >
             {submitting && action === "rejected" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
               <X className="h-4 w-4" />
             )}
-            驳回
+            退回
           </Button>
           <Button
             type="button"
             disabled={submitting}
             onClick={() => submit("approved")}
-            className="flex-1 bg-[#07C160] text-white hover:bg-[#06ad56]"
+            className="flex-1 rounded-2xl bg-gradient-to-r from-[var(--cute-mint)] to-[var(--cute-mint-deep)] text-white shadow-[0_4px_0_-1px_#3aa88a] hover:from-[var(--cute-mint-deep)] hover:to-[var(--cute-mint-deep)]"
           >
             {submitting && action === "approved" ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -259,7 +278,7 @@ export function DetailSheet({
               <Check className="h-4 w-4" />
             )}
             通过
-            {finalSponsor > 0 && ` · 赞助 ¥${formatMoney(finalSponsor)}`}
+            {finalSponsor > 0 && ` · 赏 ¥${formatMoney(finalSponsor)}`}
           </Button>
         </div>
       </DrawerContent>
