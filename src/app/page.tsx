@@ -64,6 +64,18 @@ export default function Page() {
 
   const pendingCount = approvals.filter((a) => a.status === "pending").length;
 
+  /** 切换角色时，自动跳到该角色的默认 Tab，避免停在无权限的页面 */
+  function switchRole(r: Role) {
+    setRole(r);
+    if (r === "applicant") {
+      // 申请人没有「审批」Tab，若当前在审批页则跳回申请
+      setTab((t) => (t === "approve" ? "submit" : t === "submit" ? "submit" : t));
+    } else {
+      // 审批人没有「申请」Tab，若当前在申请页则跳到审批
+      setTab((t) => (t === "submit" ? "approve" : t));
+    }
+  }
+
   function openEdit() {
     setDraftName(reviewerName);
     setEditOpen(true);
@@ -112,7 +124,7 @@ export default function Page() {
             <div className="ml-auto flex rounded-full bg-black/15 p-0.5 text-[11px] backdrop-blur">
               <button
                 type="button"
-                onClick={() => setRole("applicant")}
+                onClick={() => switchRole("applicant")}
                 className={cn(
                   "flex items-center gap-1 rounded-full px-2.5 py-1 font-bold transition",
                   role === "applicant"
@@ -125,7 +137,7 @@ export default function Page() {
               </button>
               <button
                 type="button"
-                onClick={() => setRole("reviewer")}
+                onClick={() => switchRole("reviewer")}
                 className={cn(
                   "flex items-center gap-1 rounded-full px-2.5 py-1 font-bold transition",
                   role === "reviewer"
@@ -166,16 +178,16 @@ export default function Page() {
           </div>
         </header>
 
-        {/* 内容区 */}
+        {/* 内容区 —— 按角色显示对应页面 */}
         <main className="flex-1 pb-2">
-          {tab === "submit" && (
+          {role === "applicant" && tab === "submit" && (
             <SubmitView
               onSubmitted={() => {
                 refresh();
               }}
             />
           )}
-          {tab === "approve" && (
+          {role === "reviewer" && tab === "approve" && (
             <ApproveView
               approvals={approvals}
               reviewer={reviewerName}
@@ -188,24 +200,29 @@ export default function Page() {
           )}
         </main>
 
-        {/* 底部 Tab 栏 —— 软白卡片 */}
+        {/* 底部 Tab 栏 —— 按角色显示不同入口
+            申请人：申请 + 记录（2 栏）
+            审批人：审批 + 记录（2 栏） */}
         <nav className="sticky bottom-0 z-40 rounded-t-[24px] border-2 border-b-0 border-white bg-white/95 px-2 pb-[max(0.25rem,env(safe-area-inset-bottom))] pt-1.5 shadow-[0_-6px_20px_-8px_rgba(255,122,157,0.3)] backdrop-blur">
-          <div className="grid grid-cols-3">
-            <TabItem
-              active={tab === "submit"}
-              icon={<PenSquare className="h-5 w-5" />}
-              label="申请"
-              emoji="✏️"
-              onClick={() => setTab("submit")}
-            />
-            <TabItem
-              active={tab === "approve"}
-              icon={<ClipboardCheck className="h-5 w-5" />}
-              label="审批"
-              emoji="📮"
-              badge={pendingCount}
-              onClick={() => setTab("approve")}
-            />
+          <div className="grid grid-cols-2">
+            {role === "applicant" ? (
+              <TabItem
+                active={tab === "submit"}
+                icon={<PenSquare className="h-5 w-5" />}
+                label="申请"
+                emoji="✏️"
+                onClick={() => setTab("submit")}
+              />
+            ) : (
+              <TabItem
+                active={tab === "approve"}
+                icon={<ClipboardCheck className="h-5 w-5" />}
+                label="审批"
+                emoji="📮"
+                badge={pendingCount}
+                onClick={() => setTab("approve")}
+              />
+            )}
             <TabItem
               active={tab === "history"}
               icon={<History className="h-5 w-5" />}

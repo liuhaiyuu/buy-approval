@@ -8,11 +8,19 @@ import { StatusBadge } from "./status-badge";
 import {
   Drawer,
   DrawerContent,
-  DrawerHeader,
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
-import { Gift, CheckCircle2, XCircle, Inbox, MessageSquareText, ZoomIn } from "lucide-react";
+import {
+  Gift,
+  CheckCircle2,
+  XCircle,
+  Inbox,
+  MessageSquareText,
+  ZoomIn,
+  X,
+  ChevronLeft,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ImageViewer } from "./image-viewer";
 
@@ -186,14 +194,31 @@ export function HistoryView({ approvals, loading }: Props) {
           className="!mt-0 !max-h-[100vh] !rounded-t-3xl border-2 border-b-0 border-white"
           style={{ height: "100dvh" }}
         >
-          <DrawerHeader className="pb-2 pt-3 text-center">
+          {/* 顶部标题栏 + 返回/关闭按钮 */}
+          <div className="flex items-center justify-between px-4 pb-2 pt-3">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="grid h-8 w-8 place-items-center rounded-full bg-[var(--cute-bg-2)] text-[var(--cute-ink-soft)] transition active:scale-95 hover:bg-[var(--cute-pink-soft)] hover:text-[var(--cute-pink-deep)]"
+              aria-label="返回"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
             <DrawerTitle className="text-base font-bold text-[var(--cute-ink)]">
               📝 申请详情
             </DrawerTitle>
-            <DrawerDescription className="sr-only">
-              查看申请详情
-            </DrawerDescription>
-          </DrawerHeader>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="grid h-8 w-8 place-items-center rounded-full bg-[var(--cute-bg-2)] text-[var(--cute-ink-soft)] transition active:scale-95 hover:bg-[var(--cute-pink-soft)] hover:text-[var(--cute-pink-deep)]"
+              aria-label="关闭"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <DrawerDescription className="sr-only">
+            查看申请详情
+          </DrawerDescription>
           {selected && (
             <div className="cute-scroll flex-1 overflow-y-auto px-4 pb-6">
               {/* 订单截图 —— 完整显示，点击可全屏预览 */}
