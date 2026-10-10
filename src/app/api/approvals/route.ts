@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { serializeApproval, generateAvatarDataUrl } from "@/lib/approvals";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
-import { randomUUID } from "crypto";
+import sharp from "sharp";
 
 /** GET /api/approvals?status=pending|approved|rejected|all */
 export async function GET(req: NextRequest) {
@@ -16,8 +14,27 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ data: list.map(serializeApproval) });
 }
 
+/**
+ * 把上传的图片压缩为 JPEG base64 data URL。
+ * - 限制最大宽度 1280px（截图足够清晰，又控制体积）
+ * - JPEG quality 80，体积/质量平衡
+ * - 返回的 data URL 可直接 <img src> 显示，也能存数据库
+ * - 单张通常 100~400KB，SQLite 完全扛得住
+ */
+async function imageToDataUrl(file: File): Promise<string> {
+  const raw = Buffer.from(await file.arrayBuffer());
+  const compressed = await sharp(raw)
+    .rotate() // 保留 EXIF 方向
+    .resize({ width: 1280, height: 1280, fit: "inside", withoutEnlargement: true })
+    .jpeg({ quality: 80, mozjpeg: true })
+    .toBuffer();
+  const base64 = compressed.toString("base64");
+  return `data:image/jpeg;base64,${base64}`;
+}
+
 /** POST /api/approvals  —— multipart/form-data
- *  仅 orderImage 与 reason 必填；applicant/item/amount 可选，缺省时给默认值 */
+ *  仅 orderImage 与 reason 必填；applicant/item/amount 可选，缺省时给默认值
+ *  图片以 base64 data URL 形式存入数据库，不依赖文件系统，部署友好 */
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
@@ -36,18 +53,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "请上传订单截图" }, { status: 400 });
     }
 
-    // 限制 8MB
-    if (file.size > 8 * 1024 * 1024) {
-      return NextResponse.json({ error: "图片不能超过 8MB" }, { status: 400 });
+    // 限制原图 10MB（压缩后会小很多）
+    if (file.size > 10 * 1024 * 1024) {
+      return NextResponse.json({ error: "图片不能超过 10MB" }, { status: 400 });
     }
 
-    const ext = (file.name.split(".").pop() || "png").toLowerCase().slice(0, 5);
-    const filename = `${randomUUID()}.${ext}`;
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await mkdir(uploadDir, { recursive: true });
-    const buffer = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(uploadDir, filename), buffer);
-    const orderImage = `/uploads/${filename}`;
+    // 压缩 + 转 base64 data URL，存数据库
+    const orderImage = await imageToDataUrl(file);
 
     const created = await db.approvalRequest.create({
       data: {

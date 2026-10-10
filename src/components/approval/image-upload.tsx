@@ -77,7 +77,7 @@ export function ImageUpload({ value, previewUrl, onChange }: Props) {
         📷 上传订单截图
       </div>
       <div className="text-[11px] text-[var(--cute-ink-soft)]">
-        点一点或拖进来都可以哟～（最大 8MB）
+        点一点或拖进来都可以哟～（最大 10MB，会自动压缩）
       </div>
       <input
         ref={inputRef}
