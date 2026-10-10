@@ -2,41 +2,26 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "./image-upload";
 import { useToast } from "@/hooks/use-toast";
-import { formatMoney } from "@/lib/approvals";
-import { Send, Loader2, Info, Heart } from "lucide-react";
+import { Send, Loader2, Info } from "lucide-react";
 
 interface Props {
-  defaultApplicant: string;
   onSubmitted: () => void;
 }
 
-export function SubmitView({ defaultApplicant, onSubmitted }: Props) {
+export function SubmitView({ onSubmitted }: Props) {
   const { toast } = useToast();
-  const [applicant, setApplicant] = useState(defaultApplicant);
-  const [item, setItem] = useState("");
-  const [amount, setAmount] = useState("");
   const [reason, setReason] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const amountNum = Number(amount) || 0;
-  const canSubmit =
-    applicant.trim() &&
-    item.trim() &&
-    amountNum > 0 &&
-    reason.trim() &&
-    file &&
-    !submitting;
+  const canSubmit = !!reason.trim() && !!file && !submitting;
 
   function reset() {
-    setItem("");
-    setAmount("");
     setReason("");
     setFile(null);
     if (preview) URL.revokeObjectURL(preview);
@@ -48,9 +33,6 @@ export function SubmitView({ defaultApplicant, onSubmitted }: Props) {
     setSubmitting(true);
     try {
       const fd = new FormData();
-      fd.append("applicant", applicant.trim());
-      fd.append("item", item.trim());
-      fd.append("amount", String(amountNum));
       fd.append("reason", reason.trim());
       fd.append("orderImage", file);
       const res = await fetch("/api/approvals", { method: "POST", body: fd });
@@ -58,7 +40,7 @@ export function SubmitView({ defaultApplicant, onSubmitted }: Props) {
       if (!res.ok) throw new Error(j.error || "提交失败");
       toast({
         title: "提交成功啦 🎉",
-        description: `「${item.trim()}」的购买申请已发送，等老板翻牌子哟～`,
+        description: `购买申请已发送，等老板翻牌子哟～`,
       });
       reset();
       onSubmitted();
@@ -97,52 +79,14 @@ export function SubmitView({ defaultApplicant, onSubmitted }: Props) {
         />
       </SectionCard>
 
-      {/* 申请人 + 商品 */}
-      <SectionCard title="申请信息" emoji="📝">
-        <div className="space-y-3">
-          <Field label="申请人" required>
-            <Input
-              value={applicant}
-              onChange={(e) => setApplicant(e.target.value)}
-              placeholder="你的昵称～"
-              className="mt-1.5 h-11 rounded-xl border-2 border-[#ffe5d6] bg-[var(--cute-bg)] text-[var(--cute-ink)] placeholder:text-[var(--cute-ink-soft)]/60 focus-visible:border-[var(--cute-pink)] focus-visible:ring-[var(--cute-pink-soft)]"
-            />
-          </Field>
-          <Field label="商品名称" required>
-            <Input
-              value={item}
-              onChange={(e) => setItem(e.target.value)}
-              placeholder="例如：Sony 降噪耳机"
-              className="mt-1.5 h-11 rounded-xl border-2 border-[#ffe5d6] bg-[var(--cute-bg)] text-[var(--cute-ink)] placeholder:text-[var(--cute-ink-soft)]/60 focus-visible:border-[var(--cute-pink)] focus-visible:ring-[var(--cute-pink-soft)]"
-            />
-          </Field>
-          <Field label="订单金额（元）" required>
-            <div className="relative mt-1.5">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-bold text-[var(--cute-pink-deep)]">
-                ¥
-              </span>
-              <Input
-                type="number"
-                min={0}
-                inputMode="decimal"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="0.00"
-                className="h-11 rounded-xl border-2 border-[#ffe5d6] bg-[var(--cute-bg)] pl-7 text-base font-bold text-[var(--cute-ink)] placeholder:text-[var(--cute-ink-soft)]/60 focus-visible:border-[var(--cute-pink)] focus-visible:ring-[var(--cute-pink-soft)]"
-              />
-            </div>
-          </Field>
-        </div>
-      </SectionCard>
-
-      {/* 购买原因 */}
-      <SectionCard title="购买理由" emoji="💭">
-        <Label className="sr-only">购买原因</Label>
+      {/* 购买理由 */}
+      <SectionCard title="购买理由" emoji="💭" required>
+        <Label className="sr-only">购买理由</Label>
         <Textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="认真说说为啥要买～理由越真诚越容易过审哟"
-          className="min-h-[110px] resize-none rounded-xl border-2 border-[#ffe5d6] bg-[var(--cute-bg)] text-[13px] leading-relaxed text-[var(--cute-ink)] placeholder:text-[var(--cute-ink-soft)]/60 focus-visible:border-[var(--cute-pink)] focus-visible:ring-[var(--cute-pink-soft)]"
+          placeholder="想买啥、为啥要买，都说给老板听听～理由越真诚越容易过审哟"
+          className="min-h-[140px] resize-none rounded-xl border-2 border-[#ffe5d6] bg-[var(--cute-bg)] text-[13px] leading-relaxed text-[var(--cute-ink)] placeholder:text-[var(--cute-ink-soft)]/60 focus-visible:border-[var(--cute-pink)] focus-visible:ring-[var(--cute-pink-soft)]"
           maxLength={300}
         />
         <div className="mt-1 text-right text-[11px] text-[var(--cute-ink-soft)]">
@@ -163,14 +107,7 @@ export function SubmitView({ defaultApplicant, onSubmitted }: Props) {
           ) : (
             <>
               <Send className="h-4 w-4" />
-              {amountNum > 0 ? (
-                <>
-                  提交申请 · 赞助求 ¥{formatMoney(amountNum)}
-                  <Heart className="ml-0.5 h-3.5 w-3.5 fill-white" />
-                </>
-              ) : (
-                "提交审批申请"
-              )}
+              提交审批申请
             </>
           )}
         </Button>
@@ -197,25 +134,6 @@ function SectionCard({
         {title}
         {required && <span className="text-[var(--cute-pink-deep)]">*</span>}
       </div>
-      {children}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  required,
-  children,
-}: {
-  label: string;
-  required?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <Label className="text-[13px] font-semibold text-[var(--cute-ink)]">
-        {label} {required && <span className="text-[var(--cute-pink-deep)]">*</span>}
-      </Label>
       {children}
     </div>
   );

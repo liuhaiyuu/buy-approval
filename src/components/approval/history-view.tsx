@@ -214,19 +214,27 @@ export function HistoryView({ approvals, loading }: Props) {
 
               <div className="mt-3 rounded-2xl border-2 border-white bg-[var(--cute-bg)] p-3 shadow-[0_3px_0_-1px_#ffe5d6]">
                 <div className="text-[11px] font-medium text-[var(--cute-ink-soft)]">
-                  🛍️ 购买商品
+                  🛍️ {selected.amount > 0 ? "购买商品" : "商品 & 金额"}
                 </div>
-                <div className="mt-0.5 text-sm font-bold text-[var(--cute-ink)]">
-                  {selected.item}
-                </div>
-                <div className="mt-2 flex items-baseline">
-                  <span className="text-xs text-[var(--cute-ink-soft)]">
-                    订单金额
-                  </span>
-                  <span className="ml-auto text-xl font-black text-[var(--cute-pink-deep)]">
-                    ¥{formatMoney(selected.amount)}
-                  </span>
-                </div>
+                {selected.amount > 0 ? (
+                  <>
+                    <div className="mt-0.5 text-sm font-bold text-[var(--cute-ink)]">
+                      {selected.item}
+                    </div>
+                    <div className="mt-2 flex items-baseline">
+                      <span className="text-xs text-[var(--cute-ink-soft)]">
+                        订单金额
+                      </span>
+                      <span className="ml-auto text-xl font-black text-[var(--cute-pink-deep)]">
+                        ¥{formatMoney(selected.amount)}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="mt-1 text-[13px] font-medium text-[var(--cute-ink-soft)]">
+                    看上面的订单截图就好啦 📸
+                  </div>
+                )}
               </div>
 
               <div className="mt-3">

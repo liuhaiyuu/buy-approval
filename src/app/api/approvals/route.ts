@@ -16,28 +16,21 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ data: list.map(serializeApproval) });
 }
 
-/** POST /api/approvals  —— multipart/form-data */
+/** POST /api/approvals  —— multipart/form-data
+ *  仅 orderImage 与 reason 必填；applicant/item/amount 可选，缺省时给默认值 */
 export async function POST(req: NextRequest) {
   try {
     const form = await req.formData();
-    const applicant = String(form.get("applicant") || "").trim();
-    const item = String(form.get("item") || "").trim();
+    const applicant =
+      String(form.get("applicant") || "").trim() || "小可爱";
+    const item = String(form.get("item") || "").trim() || "见订单截图哟";
     const amountRaw = String(form.get("amount") || "0").trim();
+    const amount = Number(amountRaw) || 0;
     const reason = String(form.get("reason") || "").trim();
     const file = form.get("orderImage") as File | null;
 
-    if (!applicant) {
-      return NextResponse.json({ error: "请填写申请人" }, { status: 400 });
-    }
-    if (!item) {
-      return NextResponse.json({ error: "请填写商品名称" }, { status: 400 });
-    }
-    const amount = Number(amountRaw);
-    if (!Number.isFinite(amount) || amount <= 0) {
-      return NextResponse.json({ error: "请填写有效的商品金额" }, { status: 400 });
-    }
     if (!reason) {
-      return NextResponse.json({ error: "请填写购买原因" }, { status: 400 });
+      return NextResponse.json({ error: "请填写购买理由" }, { status: 400 });
     }
     if (!file || file.size === 0) {
       return NextResponse.json({ error: "请上传订单截图" }, { status: 400 });

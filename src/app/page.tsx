@@ -6,25 +6,38 @@ import { SubmitView } from "@/components/approval/submit-view";
 import { ApproveView } from "@/components/approval/approve-view";
 import { HistoryView } from "@/components/approval/history-view";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
   PenSquare,
   ClipboardCheck,
   History,
   User,
   ShieldCheck,
+  Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Role = "applicant" | "reviewer";
 type Tab = "submit" | "approve" | "history";
 
-const APPLICANT_NAME = "小敏";
-const REVIEWER_NAME = "老板";
-
 export default function Page() {
   const [role, setRole] = useState<Role>("applicant");
   const [tab, setTab] = useState<Tab>("submit");
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // 审批人名字可设置
+  const [reviewerName, setReviewerName] = useState("老板");
+  const [editOpen, setEditOpen] = useState(false);
+  const [draftName, setDraftName] = useState("老板");
 
   const refresh = useCallback(async () => {
     try {
@@ -50,6 +63,16 @@ export default function Page() {
   }, [refresh]);
 
   const pendingCount = approvals.filter((a) => a.status === "pending").length;
+
+  function openEdit() {
+    setDraftName(reviewerName);
+    setEditOpen(true);
+  }
+  function saveEdit() {
+    const n = draftName.trim();
+    if (n) setReviewerName(n);
+    setEditOpen(false);
+  }
 
   return (
     <div
@@ -118,14 +141,28 @@ export default function Page() {
 
           {/* 当前身份提示条 */}
           <div className="relative flex items-center gap-1.5 bg-black/10 px-4 py-1.5 text-[11px] font-medium text-white/95">
-            <span className="font-bold">
-              {role === "applicant" ? "🧑 " + APPLICANT_NAME : "👑 " + REVIEWER_NAME}
-            </span>
-            <span className="opacity-90">
-              {role === "applicant"
-                ? "· 来报备一下要买啥吧"
-                : `· 还有 ${pendingCount} 单等你翻牌子`}
-            </span>
+            {role === "applicant" ? (
+              <>
+                <span className="font-bold">🧑 小可爱</span>
+                <span className="opacity-90">· 来报备一下要买啥吧</span>
+              </>
+            ) : (
+              <>
+                <span className="font-bold">👑 {reviewerName}</span>
+                <span className="opacity-90">
+                  · 还有 {pendingCount} 单等你翻牌子
+                </span>
+                <button
+                  type="button"
+                  onClick={openEdit}
+                  className="ml-auto inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold text-white transition hover:bg-white/30"
+                  aria-label="设置审批人"
+                >
+                  <Pencil className="h-2.5 w-2.5" />
+                  改名
+                </button>
+              </>
+            )}
           </div>
         </header>
 
@@ -133,7 +170,6 @@ export default function Page() {
         <main className="flex-1 pb-2">
           {tab === "submit" && (
             <SubmitView
-              defaultApplicant={APPLICANT_NAME}
               onSubmitted={() => {
                 refresh();
               }}
@@ -142,7 +178,7 @@ export default function Page() {
           {tab === "approve" && (
             <ApproveView
               approvals={approvals}
-              reviewer={REVIEWER_NAME}
+              reviewer={reviewerName}
               loading={loading}
               onReviewed={refresh}
             />
@@ -180,6 +216,63 @@ export default function Page() {
           </div>
         </nav>
       </div>
+
+      {/* 设置审批人弹窗 */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="rounded-3xl border-2 border-white p-0 sm:max-w-[340px]">
+          <DialogHeader className="px-5 pt-5 pb-1">
+            <DialogTitle className="flex items-center gap-1.5 text-base font-bold text-[var(--cute-ink)]">
+              👑 设置审批人
+            </DialogTitle>
+            <DialogDescription className="text-[12px] text-[var(--cute-ink-soft)]">
+              给审批人起个名字吧～比如「老板」「老公」「女王大人」
+            </DialogDescription>
+          </DialogHeader>
+          <div className="px-5 py-3">
+            <Input
+              value={draftName}
+              onChange={(e) => setDraftName(e.target.value)}
+              placeholder="审批人称呼"
+              maxLength={12}
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === "Enter") saveEdit();
+              }}
+              className="h-11 rounded-xl border-2 border-[#ffe5d6] bg-[var(--cute-bg)] text-[var(--cute-ink)] placeholder:text-[var(--cute-ink-soft)]/60 focus-visible:border-[var(--cute-pink)] focus-visible:ring-[var(--cute-pink-soft)]"
+            />
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {["老板", "老公", "媳妇", "女王大人", "财阀"].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setDraftName(n)}
+                  className="rounded-full border-2 border-[#ffe5d6] bg-white px-2.5 py-0.5 text-[11px] font-medium text-[var(--cute-ink)] transition hover:border-[var(--cute-pink)] hover:text-[var(--cute-pink-deep)]"
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+          <DialogFooter className="gap-2 px-5 pb-5 sm:justify-between">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setEditOpen(false)}
+              className="flex-1 rounded-xl border-2 border-[#ffe5d6] text-[var(--cute-ink-soft)] hover:bg-[var(--cute-bg)] hover:text-[var(--cute-ink)]"
+            >
+              取消
+            </Button>
+            <Button
+              type="button"
+              onClick={saveEdit}
+              disabled={!draftName.trim()}
+              className="flex-1 rounded-xl bg-gradient-to-r from-[var(--cute-pink)] to-[var(--cute-pink-deep)] text-white shadow-[0_3px_0_-1px_#ff5c86] hover:from-[var(--cute-pink-deep)] hover:to-[var(--cute-pink-deep)]"
+            >
+              确定
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

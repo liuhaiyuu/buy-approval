@@ -66,12 +66,20 @@ export function ApprovalCard({ data, onClick, showSponsor = true }: Props) {
         <div className="mt-1 flex items-end justify-between gap-2">
           <div>
             <div className="flex items-baseline gap-0.5">
-              <span className="text-xs font-medium text-[var(--cute-pink-deep)]">
-                ¥
-              </span>
-              <span className="text-base font-bold text-[var(--cute-pink-deep)]">
-                {formatMoney(data.amount)}
-              </span>
+              {data.amount > 0 ? (
+                <>
+                  <span className="text-xs font-medium text-[var(--cute-pink-deep)]">
+                    ¥
+                  </span>
+                  <span className="text-base font-bold text-[var(--cute-pink-deep)]">
+                    {formatMoney(data.amount)}
+                  </span>
+                </>
+              ) : (
+                <span className="rounded-full bg-[var(--cute-bg-2)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--cute-ink-soft)]">
+                  见截图 📸
+                </span>
+              )}
             </div>
             <div className="mt-0.5 text-[10px] text-[var(--cute-ink-soft)]">
               {relativeTime(data.createdAt)}

@@ -139,19 +139,27 @@ export function DetailSheet({
           {/* 商品 + 金额 */}
           <div className="mt-3 rounded-2xl border-2 border-white bg-[var(--cute-bg)] p-3 shadow-[0_3px_0_-1px_#ffe5d6]">
             <div className="text-[11px] font-medium text-[var(--cute-ink-soft)]">
-              🛍️ 想买啥
+              🛍️ {approval.amount > 0 ? "想买啥" : "商品 & 金额"}
             </div>
-            <div className="mt-0.5 text-sm font-bold text-[var(--cute-ink)]">
-              {approval.item}
-            </div>
-            <div className="mt-2 flex items-baseline gap-1">
-              <span className="text-xs text-[var(--cute-ink-soft)]">
-                订单金额
-              </span>
-              <span className="ml-auto text-xl font-black text-[var(--cute-pink-deep)]">
-                ¥{formatMoney(approval.amount)}
-              </span>
-            </div>
+            {approval.amount > 0 ? (
+              <>
+                <div className="mt-0.5 text-sm font-bold text-[var(--cute-ink)]">
+                  {approval.item}
+                </div>
+                <div className="mt-2 flex items-baseline gap-1">
+                  <span className="text-xs text-[var(--cute-ink-soft)]">
+                    订单金额
+                  </span>
+                  <span className="ml-auto text-xl font-black text-[var(--cute-pink-deep)]">
+                    ¥{formatMoney(approval.amount)}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <div className="mt-1 text-[13px] font-medium text-[var(--cute-ink-soft)]">
+                看上面的订单截图就好啦 📸
+              </div>
+            )}
           </div>
 
           {/* 购买原因 */}
