@@ -97,9 +97,19 @@ export function DetailSheet({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="max-h-[92vh] !rounded-t-3xl border-2 border-b-0 border-white">
-        <DrawerHeader className="pb-2 text-center">
+    <Drawer
+      open={open}
+      onOpenChange={onOpenChange}
+      // vaul：全屏 snap，默认停在最高点，不再半屏
+      snapPoints={[1]}
+      fadeFromIndex={0}
+      activeSnapPoint={1}
+    >
+      <DrawerContent
+        className="!mt-0 !max-h-[100vh] !rounded-t-3xl border-2 border-b-0 border-white"
+        style={{ height: "100dvh" }}
+      >
+        <DrawerHeader className="pb-2 pt-3 text-center">
           <DrawerTitle className="text-base font-bold text-[var(--cute-ink)]">
             📋 审批详情
           </DrawerTitle>
