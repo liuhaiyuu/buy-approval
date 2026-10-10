@@ -17,7 +17,7 @@ export function ApprovalCard({ data, onClick, showSponsor = true }: Props) {
     <button
       type="button"
       onClick={onClick}
-      className="cute-pop flex w-full items-stretch gap-3 rounded-3xl border-2 border-white bg-white p-3 text-left shadow-[0_4px_0_-1px_#ffe5d6,0_10px_22px_-10px_rgba(255,122,157,0.35)] transition active:translate-y-0.5 active:shadow-[0_2px_0_-1px_#ffe5d6,0_6px_14px_-10px_rgba(255,122,157,0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_0_-1px_#ffd5e0,0_14px_26px_-10px_rgba(255,122,157,0.45)]"
+      className="cute-pop group flex w-full items-stretch gap-3 rounded-3xl border-2 border-white bg-white p-3 text-left shadow-[0_4px_0_-1px_#ffe5d6,0_10px_22px_-10px_rgba(255,122,157,0.35)] transition active:translate-y-0.5 active:shadow-[0_2px_0_-1px_#ffe5d6,0_6px_14px_-10px_rgba(255,122,157,0.35)] hover:-translate-y-0.5 hover:shadow-[0_6px_0_-1px_#ffd5e0,0_14px_26px_-10px_rgba(255,122,157,0.45)]"
     >
       {/* 缩略图 —— 圆角更大的贴纸感 */}
       <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 border-white bg-[var(--cute-bg-2)] shadow-sm">
@@ -54,13 +54,15 @@ export function ApprovalCard({ data, onClick, showSponsor = true }: Props) {
               {data.item}
             </div>
           </div>
-          {data.status !== "pending" ? (
-            <StatusBadge status={data.status} />
-          ) : (
-            <div className="grid h-6 w-6 place-items-center rounded-full bg-[var(--cute-pink-soft)]">
+          <div className="flex flex-col items-end gap-1">
+            {data.status !== "pending" ? (
+              <StatusBadge status={data.status} />
+            ) : null}
+            {/* 所有状态都显示箭头，明确告诉用户可以点进去看详情 */}
+            <div className="grid h-6 w-6 place-items-center rounded-full bg-[var(--cute-pink-soft)] transition group-hover:bg-[var(--cute-pink)]">
               <ChevronRight className="h-3.5 w-3.5 text-[var(--cute-pink-deep)]" />
             </div>
-          )}
+          </div>
         </div>
 
         <div className="mt-1 flex items-end justify-between gap-2">
