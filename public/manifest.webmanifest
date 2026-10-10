@@ -1,0 +1,24 @@
+{
+  "name": "买前审批",
+  "short_name": "买前审批",
+  "description": "花钱之前，先过老板这一关——上传订单截图，老板审批通过才能下单，还能打赏赞助。",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fff6f0",
+  "theme_color": "#ff7a9d",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
